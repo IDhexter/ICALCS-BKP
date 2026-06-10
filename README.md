@@ -1,108 +1,59 @@
-# ICALCS Backups - Controle de Permissões de Arquivos
+# Gerenciamento e Backup de ACLs (icacls) no Windows
 
-Repositório contendo scripts automatizados para backup e retenção de permissões de acesso (Access Control Lists - ACLs) do Windows (`icacls`) para diferentes ambientes e clientes.
-
-## 📌 Clientes Cadastrados
-
-Clique no link abaixo para pular diretamente para a configuração do cliente desejado:
-
-*   [VEGA](#-1-vega)
-*   [Hospital Evangélico de Sorocaba (HES)](#-2-hospital-evangélico-de-sorocaba-hes)
+Este repositório centraliza scripts automatizados para realizar o backup e a retenção de permissões de arquivos (Access Control Lists - ACLs) em ambientes Windows Server e computadores locais.
 
 ---
 
-## 🏢 1. VEGA
+## ❓ O que é o ICACLS e como ele funciona?
 
-Script de backup das permissões para a estrutura de pastas da VEGA.
+O **`icacls`** é um utilitário nativo de linha de comando do Windows (presente desde o Windows Server 2003 SP2 e Windows Vista) utilizado para exibir, modificar, fazer backup e restaurar descritores de segurança (permissões NTFS) de arquivos e pastas.
 
-### 📝 Detalhes do Ambiente
-*   **Diretório de Origem (`PASTA`):** `D:\Vega`
-*   **Diretório de Destino (`BKPDIR`):** `D:\Vega\Operacao\Backups - Diversos\ICALCS-VEGA`
-*   **Retenção (`DIAS`):** 30 dias
-*   **Nomenclatura do Arquivo:** `ACL-VEGA_AAAAMMDD.txt`
-
-### 💾 Arquivo do Script
-*   Script pronto para download/uso: [bkp-acl-vega.bat](./Vega/bkp-acl-vega.bat)
-
-### 💻 Código do Script
-```bat
-@echo off
-
-:: --- CONFIGURAÇÃO DE DIRETÓRIOS ---
-set PASTA=D:\Vega
-set BKPDIR=D:\Vega\Operacao\Backups - Diversos\ICALCS-VEGA
-set DIAS=30
-
-:: Criar a pasta de backup caso ela não exista
-if not exist "%BKPDIR%" mkdir "%BKPDIR%"
-
-:: Obter a data atual no formato AAAAMMDD de forma padronizada
-for /f "tokens=2 delims==" %%i in ('wmic os get LocalDateTime /value ^| find "="') do set ldt=%%i
-set DATA=%ldt:~0,8%
-
-:: Executar o backup das permissões (ACLs)
-icacls "%PASTA%" /save "%BKPDIR%\ACL-VEGA_%DATA%.txt" /T /C /Q
-
-:: Apagar backups automáticos com mais de 30 dias
-forfiles /p "%BKPDIR%" /m "ACL-VEGA_*.txt" /d -%DIAS% /c "cmd /c del /q @path"
-
-:: Confirmação na tela
-echo OK - Backup criado: "%BKPDIR%\ACL-VEGA_%DATA%.txt"
-```
-
-### ↩️ Como Restaurar as Permissões
-Para restaurar as permissões a partir de um backup existente, abra o Prompt de Comando (CMD) como **Administrador** e execute:
+### Como funciona o Backup?
+Quando executamos o backup com a flag `/save`, o `icacls` lê a Tabela de Controle de Acesso (ACL) de cada arquivo/pasta e a exporta para um arquivo de texto criptografado/estruturado proprietário. O script automatiza isso usando o seguinte padrão:
 ```cmd
-icacls "D:\" /restore "D:\Vega\Operacao\Backups - Diversos\ICALCS-VEGA\ACL-VEGA_AAAAMMDD.txt" /T /C
+icacls "%PASTA%" /save "%BKPDIR%\ACL-ARQUIVO_%DATA%.txt" /T /C /Q
 ```
-> [!IMPORTANT]  
-> Substitua `AAAAMMDD` no comando acima pela data do arquivo de backup que deseja restaurar. O diretório alvo deve ser a raiz do volume (`D:\`), pois as permissões foram salvas com o caminho relativo contendo a pasta `Vega`.
+*   `/T`: Varre recursivamente a pasta (`%PASTA%`) e todos os seus arquivos/subpastas.
+*   `/C`: Continua a execução mesmo se encontrar erros (como arquivos temporariamente bloqueados).
+*   `/Q`: Executa de modo silencioso para não poluir o terminal de logs de sucesso de cada arquivo.
 
----
+### ⚠️ A Nuance Crítica da Restauração
+Um erro muito comum ao usar o `icacls` é tentar restaurar as permissões apontando diretamente para a pasta original. 
 
-## 🏥 2. Hospital Evangélico de Sorocaba (HES)
-
-Script de backup das permissões para o servidor de arquivos (`Dados`) do Hospital Evangélico de Sorocaba.
-
-### 📝 Detalhes do Ambiente
-*   **Diretório de Origem (`PASTA`):** `E:\Dados`
-*   **Diretório de Destino (`BKPDIR`):** `C:\BKP`
-*   **Retenção (`DIAS`):** 30 dias
-*   **Nomenclatura do Arquivo:** `ACL-DADOS_AAAAMMDD.txt`
-
-### 💾 Arquivo do Script
-*   Script pronto para download/uso: [bkp-acl-hes.bat](./Hospital-Evangelico-Sorocaba/bkp-acl-hes.bat)
-
-### 💻 Código do Script
-```bat
-@echo off
-
-:: --- CONFIGURAÇÃO DE DIRETÓRIOS ---
-set PASTA=E:\Dados
-set BKPDIR=C:\BKP
-set DIAS=30
-
-:: Criar a pasta de backup caso ela não exista
-if not exist "%BKPDIR%" mkdir "%BKPDIR%"
-
-:: Obter a data atual no formato AAAAMMDD de forma padronizada
-for /f "tokens=2 delims==" %%i in ('wmic os get LocalDateTime /value ^| find "="') do set ldt=%%i
-set DATA=%ldt:~0,8%
-
-:: Executar o backup das permissões (ACLs)
-icacls "%PASTA%" /save "%BKPDIR%\ACL-DADOS_%DATA%.txt" /T /C /Q
-
-:: Apagar backups automáticos com mais de 30 dias
-forfiles /p "%BKPDIR%" /m "ACL-DADOS_*.txt" /d -%DIAS% /c "cmd /c del /q @path"
-
-:: Confirmação na tela
-echo OK - Backup criado: "%BKPDIR%\ACL-DADOS_%DATA%.txt"
-```
-
-### ↩️ Como Restaurar as Permissões
-Para restaurar as permissões a partir de um backup existente, abra o Prompt de Comando (CMD) como **Administrador** e execute:
+O `icacls /save` armazena os caminhos dos arquivos de forma **relativa** à pasta especificada. 
+*   *Exemplo:* Ao fazer o backup de `E:\Dados`, o arquivo gerado salvará os registros com caminhos como `Dados\Administrativo UTI`, `Dados\AGENDAMENTO`, etc.
+*   *Como restaurar:* Por conta dessa gravação relativa, ao restaurar (`/restore`), você **deve especificar a pasta pai** como alvo do comando (no caso, a raiz do volume `E:\`):
 ```cmd
 icacls "E:\" /restore "C:\BKP\ACL-DADOS_AAAAMMDD.txt" /T /C
 ```
-> [!IMPORTANT]  
-> Substitua `AAAAMMDD` no comando acima pela data do arquivo de backup que deseja restaurar. O diretório alvo deve ser a raiz do volume (`E:\`), pois as permissões foram salvas com o caminho relativo contendo a pasta `Dados`.
+
+---
+
+## 📅 Lógica de Automação do Script
+
+Todos os scripts contidos neste repositório utilizam dois mecanismos de automação adicionais:
+
+1.  **Formatação da Data (`wmic`)**: 
+    Para evitar que o script quebre dependendo do idioma do Windows (onde o formato da data pode variar entre `DD/MM/AAAA` ou `MM/DD/AAAA`), o script usa a ferramenta de instrumentação do Windows para coletar a data no formato ISO (`AAAAMMDD`) que é universal.
+2.  **Retenção Automática (`forfiles`)**:
+    Evita o consumo excessivo de disco apagando backups de permissões que foram gerados há mais de X dias (configurável pela variável `%DIAS%`).
+
+---
+
+## 🏢 Clientes / Ambientes Configurados
+
+Cada cliente possui um diretório dedicado com seu próprio script `.bat` e instruções específicas de execução e restauração de permissões. 
+
+Selecione um cliente abaixo para abrir a documentação detalhada:
+
+*   [🏢 VEGA (Backup em D:\Vega)](./Vega/README.md)
+*   [🏥 Hospital Evangélico de Sorocaba (Backup em E:\Dados)](./Hospital-Evangelico-Sorocaba/README.md)
+
+---
+
+## ➕ Como Adicionar um Novo Cliente
+
+1.  Crie uma nova pasta no repositório com o nome do cliente.
+2.  Copie um arquivo `.bat` existente para dentro dela, ajustando as variáveis `PASTA`, `BKPDIR` e `DIAS`.
+3.  Crie um `README.md` na pasta do novo cliente documentando os diretórios configurados.
+4.  Adicione o link correspondente na lista acima neste arquivo `README.md` principal.
