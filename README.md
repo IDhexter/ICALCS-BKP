@@ -48,6 +48,7 @@ Selecione um cliente abaixo para abrir a documentação detalhada:
 
 *   [🏢 VEGA (Backup em D:\Vega)](./Vega/README.md)
 *   [🏥 Hospital Evangélico de Sorocaba (Backup em E:\Dados)](./Hospital-Evangelico-Sorocaba/README.md)
+*   [👩‍🔬 Hanna (Backup em D:\Dados)](./Hanna/README.md)
 
 ---
 
