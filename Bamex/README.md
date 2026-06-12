@@ -1,28 +1,28 @@
-# Backup de Permissões - Hanna
+# Backup de Permissões - Bamex
 
-Este diretório contém o script automatizado para backup e retenção das permissões de acesso (ACLs) do servidor de arquivos (`Dados`) da Hanna.
+Este diretório contém o script automatizado para backup e retenção das permissões de acesso (ACLs) do servidor de arquivos (`Dados`) da Bamex.
 
 ## 📝 Detalhes do Ambiente
-*   **Diretório de Origem (`PASTA`):** `D:\Dados`
-*   **Diretório de Destino (`BKPDIR`):** `C:\BKP_HANNA\ACL - ICALCS`
-*   **Retenção (`DIAS`):** 15 dias
+*   **Diretório de Origem (`PASTA`):** `E:\Dados`
+*   **Diretório de Destino (`BKPDIR`):** `C:\BKP\ACL`
+*   **Retenção (`DIAS`):** 30 dias
 *   **Nomenclatura do Arquivo:** `ACL-DADOS_AAAAMMDD.txt`
 
 ---
 
 ## 💾 Arquivo do Script
-*   Você pode baixar o arquivo do script diretamente aqui: [bkp-acl-hanna.bat](./bkp-acl-hanna.bat)
+*   Você pode baixar o arquivo do script diretamente aqui: [bkp-acl-bamex.bat](./bkp-acl-bamex.bat)
 
 ---
 
-## 💻 Código do Script (`bkp-acl-hanna.bat`)
+## 💻 Código do Script (`bkp-acl-bamex.bat`)
 ```bat
 @echo off
 
 :: --- CONFIGURAÇÃO DE DIRETÓRIOS ---
-set PASTA=D:\Dados
-set BKPDIR=C:\BKP_HANNA\ACL - ICALCS
-set DIAS=15
+set PASTA=E:\Dados
+set BKPDIR=C:\BKP\ACL
+set DIAS=30
 
 :: Criar a pasta de backup caso ela não exista
 if not exist "%BKPDIR%" mkdir "%BKPDIR%"
@@ -47,10 +47,10 @@ echo OK - Backup criado: "%BKPDIR%\ACL-DADOS_%DATA%.txt"
 Caso seja necessário restaurar as permissões a partir de um backup:
 
 1.  Abra o **Prompt de Comando (CMD)** como **Administrador**.
-2.  Execute o comando abaixo, apontando para a pasta raiz `D:\` (pois as permissões no backup foram salvas com o caminho relativo contendo a pasta `Dados`):
+2.  Execute o comando abaixo, apontando para a pasta raiz `E:\` (pois as permissões no backup foram salvas com o caminho relativo contendo a pasta `Dados`):
 
 ```cmd
-icacls "D:\" /restore "C:\BKP_HANNA\ACL - ICALCS\ACL-DADOS_AAAAMMDD.txt" /T /C
+icacls "E:\" /restore "C:\BKP\ACL\ACL-DADOS_AAAAMMDD.txt" /T /C
 ```
 
 > [!IMPORTANT]  

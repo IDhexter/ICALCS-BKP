@@ -1,9 +1,9 @@
 @echo off
 
 :: --- CONFIGURAÇÃO DE DIRETÓRIOS ---
-set PASTA=D:\Dados
-set BKPDIR=C:\BKP_HANNA\ACL - ICALCS
-set DIAS=15
+set PASTA=E:\Dados
+set BKPDIR=C:\BKP\ACL
+set DIAS=30
 
 :: Criar a pasta de backup caso ela não exista
 if not exist "%BKPDIR%" mkdir "%BKPDIR%"
